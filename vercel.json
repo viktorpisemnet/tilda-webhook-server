@@ -1,7 +1,15 @@
-"routes": [
-  {
-    "src": "/api/webhook",
-    "methods": ["POST"],
-    "dest": "api/webhook/index.js"
-  }
-]
+{
+  "version": 2,
+  "functions": {
+    "api/webhook/index.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/webhook",
+      "methods": ["POST"],
+      "dest": "api/webhook/index.js"
+    }
+  ]
+}
