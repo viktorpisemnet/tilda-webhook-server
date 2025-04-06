@@ -6,7 +6,6 @@ export default async function handler(req, res) {
   try {
     const data = req.body;
     console.log('Received webhook data from Tilda:', data);
-
     res.status(200).json({ message: 'Webhook received successfully' });
   } catch (error) {
     console.error('Webhook error:', error);
