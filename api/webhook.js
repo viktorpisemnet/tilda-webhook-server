@@ -1,4 +1,4 @@
-import shippo from 'shippo';
+import shippo from 'shippo/lib/index.js';
 
 const shippoClient = shippo(process.env.SHIPPO_API_KEY);
 
