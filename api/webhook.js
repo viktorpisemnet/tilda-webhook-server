@@ -1,90 +1,74 @@
-import { Shippo } from 'shippo';
-import 'dotenv/config';
+const shippo = require('shippo')(process.env.SHIPPO_API_KEY);
 
-// Инициализация Shippo SDK
-const shippo = new Shippo({
-  apiKeyHeader: process.env.SHIPPO_API_KEY
-});
-
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== 'POST') {
-    return res.status(405).send('Method Not Allowed');
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const data = req.body;
-
-  // Поддержка fallback на разные имена полей
-  const name = data.Name || data.name || 'No Name';
-  const email = data.Email || data.email || '';
-  const phone = data.Phone || data.phone || '';
-  const street1 = data.street1 || 'To be filled manually';
-  const street2 = data.street2 || '';
-  const city = data.city || 'To be filled manually';
-  const state = data.state || 'CA';
-  const zip = data.zip || '00000';
-  const country = data.country || 'US';
-
-  // Создание Shippo адреса получателя
-  let toAddressId;
-
   try {
-    const toAddress = await shippo.addresses.create({
-      name,
-      street1,
-      street2,
-      city,
-      state,
-      zip,
-      country,
-      phone,
-      email,
-      validate: true
+    const data = req.body;
+    console.log('Received webhook data from Tilda:', data);
+
+    const nameParts = data.Name ? data.Name.split(' ') : [];
+    const firstName = nameParts[0] || 'Customer';
+    const lastName = nameParts[1] || '';
+
+    const customer = await shippo.customer.create({
+      email: data.Email || '',
+      phone: data.Phone || '',
+      name: data.Name || '',
+      metadata: `From Tilda form ${data.formid || ''}`
     });
 
-    toAddressId = toAddress.object_id;
-    console.log('Created recipient address:', toAddressId);
-  } catch (error) {
-    console.error('Error creating address:', error);
-    return res.status(500).send('Address creation failed');
-  }
+    console.log('Shippo customer created:', customer);
 
-  // Адрес отправителя (ваш склад/офис)
-  const fromAddress = {
-    name: 'SubZero Parts Warehouse',
-    street1: '123 Main St',
-    city: 'San Diego',
-    state: 'CA',
-    zip: '92101',
-    country: 'US',
-    phone: '1234567890',
-    email: 'support@subzeroparts.com'
-  };
+    const address = await shippo.address.create({
+      name: data.Name || '',
+      email: data.Email || '',
+      phone: data.Phone || '',
+      street1: 'To be filled manually',
+      city: 'To be filled manually',
+      state: 'CA',
+      zip: '00000',
+      country: 'US',
+      metadata: `From Tilda form ${data.formid || ''}`,
+      validate: false
+    });
 
-  // Базовые размеры и вес посылки
-  const parcel = {
-    length: '34',
-    width: '18',
-    height: '2',
-    distance_unit: 'in',
-    weight: '3',
-    mass_unit: 'lb'
-  };
+    console.log('Shippo address created:', address);
 
-  // Создание отправления
-  try {
-    const shipment = await shippo.shipments.create({
+    const fromAddress = {
+      name: 'SubZero Parts Warehouse',
+      street1: '123 Main St',
+      city: 'San Diego',
+      state: 'CA',
+      zip: '92101',
+      country: 'US',
+      phone: '1234567890',
+      email: 'support@subzeroparts.com'
+    };
+
+    const parcel = {
+      length: '34',
+      width: '18',
+      height: '2',
+      distance_unit: 'in',
+      weight: '3',
+      mass_unit: 'lb'
+    };
+
+    const shipment = await shippo.shipment.create({
       address_from: fromAddress,
-      address_to: toAddressId,
+      address_to: address,
       parcels: [parcel],
       async: false
     });
 
-    console.log('Shipment created:', shipment.object_id);
-  } catch (error) {
-    console.error('Error creating shipment:', error);
-    return res.status(500).send('Shipment creation failed');
-  }
+    console.log('Shipment created:', shipment);
 
-  // Ответ Tilda
-  return res.status(200).send('OK');
-}
+    res.status(200).json({ message: 'Webhook processed successfully' });
+  } catch (error) {
+    console.error('Webhook error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
