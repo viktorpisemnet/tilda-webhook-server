@@ -1,6 +1,6 @@
-import shippo from 'shippo/lib/index.js';
+import shippoModule from 'shippo';
 
-const shippoClient = shippo(process.env.SHIPPO_API_KEY);
+const shippo = new shippoModule(process.env.SHIPPO_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     const firstName = nameParts[0] || 'Customer';
     const lastName = nameParts[1] || '';
 
-    const toAddress = await shippoClient.address.create({
+    const toAddress = await shippo.address.create({
       name: data.Name || '',
       email: data.Email || '',
       phone: data.Phone || '',
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
       mass_unit: 'lb'
     };
 
-    const shipment = await shippoClient.shipment.create({
+    const shipment = await shippo.shipment.create({
       address_from: fromAddress,
       address_to: toAddress,
       parcels: [parcel],
