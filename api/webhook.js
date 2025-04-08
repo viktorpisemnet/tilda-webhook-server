@@ -1,6 +1,6 @@
-import shippoModule from 'shippo';
+import shippoPackage from 'shippo';
 
-const shippo = new shippoModule(process.env.SHIPPO_API_KEY);
+const shippo = shippoPackage.default(process.env.SHIPPO_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
