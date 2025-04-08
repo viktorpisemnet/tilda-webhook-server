@@ -1,13 +1,11 @@
 {
   "name": "tilda-webhook-server",
   "version": "1.0.0",
-  "type": "module",
   "main": "api/webhook.js",
   "scripts": {
     "start": "node api/webhook.js"
   },
   "dependencies": {
-    "shippo": "^2.15.0",
-    "dotenv": "^16.0.0"
+    "shippo": "^2.11.0"
   }
 }
