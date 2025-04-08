@@ -1,6 +1,5 @@
-import shippoPackage from 'shippo';
-
-const shippo = shippoPackage.default(process.env.SHIPPO_API_KEY);
+import shippo from 'shippo';
+const shippoClient = new shippo(process.env.SHIPPO_API_KEY);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -15,7 +14,7 @@ export default async function handler(req, res) {
     const firstName = nameParts[0] || 'Customer';
     const lastName = nameParts[1] || '';
 
-    const toAddress = await shippo.address.create({
+    const address = await shippoClient.address.create({
       name: data.Name || '',
       email: data.Email || '',
       phone: data.Phone || '',
@@ -28,38 +27,9 @@ export default async function handler(req, res) {
       validate: false
     });
 
-    console.log('Shippo address created:', toAddress);
+    console.log('Shippo address created:', address);
 
-    const fromAddress = {
-      name: 'SubZero Parts Warehouse',
-      street1: '123 Main St',
-      city: 'San Diego',
-      state: 'CA',
-      zip: '92101',
-      country: 'US',
-      phone: '1234567890',
-      email: 'support@subzeroparts.com'
-    };
-
-    const parcel = {
-      length: '34',
-      width: '18',
-      height: '2',
-      distance_unit: 'in',
-      weight: '3',
-      mass_unit: 'lb'
-    };
-
-    const shipment = await shippo.shipment.create({
-      address_from: fromAddress,
-      address_to: toAddress,
-      parcels: [parcel],
-      async: false
-    });
-
-    console.log('Shipment created:', shipment);
-
-    res.status(200).json({ message: 'Webhook received and shipment created' });
+    res.status(200).json({ message: 'Webhook received and address created' });
   } catch (error) {
     console.error('Webhook error:', error);
     res.status(500).json({ error: 'Internal server error' });
