@@ -12,7 +12,8 @@ export default async function handler(req, res) {
       Phone
     } = req.body;
 
-    const shippo = require('shippo')(process.env.SHIPPO_LIVE_TOKEN);
+   import shippo from 'shippo';
+const shippoClient = shippo(shippoToken);
 
     const orderData = {
       address_to: {
