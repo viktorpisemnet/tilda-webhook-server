@@ -4,16 +4,15 @@ export default async function handler(req, res) {
 
     const {
       Name,
+      Email,
+      Phone,
       Street_Address,
       City,
       State,
-      ZIP_Code,
-      Email,
-      Phone
+      ZIP_Code
     } = req.body;
 
-   import shippo from 'shippo';
-const shippoClient = shippo(shippoToken);
+    const shippoToken = process.env.SHIPPO_API_KEY;
 
     const orderData = {
       address_to: {
@@ -24,28 +23,38 @@ const shippoClient = shippo(shippoToken);
         zip: ZIP_Code,
         country: 'US',
         email: Email,
-        phone: Phone
+        phone: Phone,
       },
       parcels: [
         {
-          length: "10",
-          width: "10",
-          height: "5",
-          distance_unit: "in",
-          weight: "2",
-          mass_unit: "lb"
+          length: '10',
+          width: '10',
+          height: '10',
+          distance_unit: 'in',
+          weight: '1',
+          mass_unit: 'lb'
         }
       ],
       async: false
     };
 
     try {
-      const shipment = await shippo.shipment.create(orderData);
-      console.log('Shipment created:', shipment);
-      res.status(200).json({ message: 'Webhook received and shipment created successfully!' });
+      const response = await fetch('https://api.goshippo.com/shipments/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `ShippoToken ${shippoToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      const data = await response.json();
+      console.log('Shippo order created:', data);
+
+      res.status(200).json({ message: 'Order created successfully', data });
     } catch (error) {
-      console.error('Error creating shipment:', error);
-      res.status(500).json({ message: 'Error creating shipment', error: error.message });
+      console.error('Error creating order:', error);
+      res.status(500).json({ error: 'Failed to create order' });
     }
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });
