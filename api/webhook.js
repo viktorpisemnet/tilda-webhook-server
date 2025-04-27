@@ -1,4 +1,4 @@
-export default async function handler(req, res) {
+async function handler(req, res) {
   if (req.method === 'POST') {
     console.log('Webhook received:', req.body);
 
@@ -10,13 +10,13 @@ export default async function handler(req, res) {
       City,
       State,
       ZIP_Code,
-      Country = 'United States' // новая страна, дефолт USA если не заполнено
+      country = 'United States'
     } = req.body;
 
     const shippoToken = process.env.SHIPPO_API_KEY;
 
     if (!shippoToken) {
-      console.error('Shippo API Key not found in environment variables.');
+      console.error('Shippo API Key not found.');
       return res.status(500).json({ error: 'Shippo API Key not configured.' });
     }
 
@@ -37,20 +37,20 @@ export default async function handler(req, res) {
         city: City,
         state: State,
         zip: ZIP_Code,
-        country: Country,
+        country: country,
         email: Email,
         phone: Phone
       },
-    parcels: [
-  {
-    length: '34',
-    width: '18',
-    height: '2',
-    distance_unit: 'in',
-    weight: '3',
-    mass_unit: 'lb'  // Shippo ждёт это поле отдельно
-  }
-]
+      parcels: [
+        {
+          length: '34',
+          width: '18',
+          height: '2',
+          distance_unit: 'in',
+          weight: '3',
+          mass_unit: 'lb'
+        }
+      ],
       async: false
     };
 
@@ -76,3 +76,5 @@ export default async function handler(req, res) {
     res.status(405).json({ message: 'Method Not Allowed' });
   }
 }
+
+export default handler;
