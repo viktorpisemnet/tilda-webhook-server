@@ -41,16 +41,16 @@ export default async function handler(req, res) {
         email: Email,
         phone: Phone
       },
-      parcels: [
-        {
-          length: '34',   // по умолчанию если нет размеров
-          width: '18',
-          height: '2',
-          distance_unit: 'in',
-          weight: '3',    // 1 lb дефолтно если нет веса
-          mass_unit: 'lb'
-        }
-      ],
+    parcels: [
+  {
+    length: '34',
+    width: '18',
+    height: '2',
+    distance_unit: 'in',
+    weight: '3',
+    mass_unit: 'lb'  // Shippo ждёт это поле отдельно
+  }
+]
       async: false
     };
 
