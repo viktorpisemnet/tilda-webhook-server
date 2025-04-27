@@ -14,14 +14,22 @@ export default async function handler(req, res) {
 
     const shippoToken = process.env.SHIPPO_API_KEY;
 
-    console.log('Shippo Token:', shippoToken); // Проверка: токен должен быть виден в логах!
-
     if (!shippoToken) {
       console.error('Shippo API Key not found in environment variables.');
       return res.status(500).json({ error: 'Shippo API Key not found' });
     }
 
     const orderData = {
+      address_from: {
+        name: 'Sub-Zero & Wolf Repair Service',
+        street1: '26551 Crestview Dr, #610',
+        city: 'Idyllwild',
+        state: 'CA',
+        zip: '92549',
+        country: 'US',
+        email: 'info@subzeroparts.com',
+        phone: '8054298885'
+      },
       address_to: {
         name: Name,
         street1: Street_Address,
@@ -34,12 +42,12 @@ export default async function handler(req, res) {
       },
       parcels: [
         {
-          length: '10',     // длина посылки (в дюймах)
-          width: '10',      // ширина посылки (в дюймах)
-          height: '10',     // высота посылки (в дюймах)
-          distance_unit: 'in',  // единица измерения
-          weight: '1',          // вес посылки
-          mass_unit: 'lb'       // единица веса
+          length: '34',
+          width: '18',
+          height: '12',
+          distance_unit: 'in',
+          weight: '3',
+          mass_unit: 'lb'
         }
       ],
       async: false
